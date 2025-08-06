@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forex Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Forex Price Predictor</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flash-messages">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+
+        <form method="POST">
+            <select name="currency" required>
+                <option value="" disabled {% if not selected_currency %}selected{% endif %}>-- Select a Currency Pair --</option>
+                {% for currency in currencies %}
+                    <option value="{{ currency }}" {% if currency == selected_currency %}selected{% endif %}>
+                        {{ currency.upper() }}
+                    </option>
+                {% endfor %}
+            </select>
+            <input type="number" step="any" name="open" placeholder="Open Price" required>
+            <input type="number" step="any" name="high" placeholder="High Price" required>
+            <input type="number" step="any" name="low" placeholder="Low Price" required>
+            <input type="number" step="any" name="sma5" placeholder="SMA_5 (Avg of last 5 closes)" required>
+            <button type="submit">Predict Close Price</button>
+        </form>
+
+        {% if prediction is not none %}
+            <div class="prediction">
+                {{ prediction }}
+                <span>Predicted Close Price for {{ selected_currency.upper() }}</span>
+            </div>
+        {% endif %}
+        <div class="prediction-details">
+            <p>Use Open, High, Low, and SMA_5 values of the selected currency pair from <a href="https://forexfactory.com" target="_blank">forexfactory.com</a> or your broker's data.</p>
+            <p><b>How to calculate SMA_5:</b> SMA_5 is the average of the last 5 closing prices (including the most recent close). Example: SMA_5 = (Close1 + Close2 + Close3 + Close4 + Close5) / 5.</p>
+            <p>Buy when predicted close is greater than the current close price. Sell when predicted close is less than the current close price.</p>
+        </div>
+    </div>
+</body>
+</html>
